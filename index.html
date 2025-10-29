@@ -13,6 +13,9 @@
     animation: cringeBg 3s infinite alternate;
     font-family: "Comic Sans MS", cursive;
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
   }
 
   @keyframes cringeBg {
@@ -21,7 +24,7 @@
   }
 
   h1 {
-    font-size: 3em;
+    font-size: 2.5em;
     color: #ff00ff;
     text-shadow: 2px 2px 10px yellow, 0 0 20px cyan;
     animation: wiggle 0.5s infinite alternate;
@@ -33,20 +36,24 @@
     to { transform: rotate(3deg); }
   }
 
+  /* === Game Container === */
   #gameContainer {
     position: relative;
     width: 90vw;
     max-width: 450px;
+    height: 80vh;
     margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   #gameCanvas {
     background: skyblue;
-    display: block;
-    width: 100%;
-    height: auto;
     border: 10px ridge gold;
     box-shadow: 0 0 50px hotpink;
+    width: 100%;
+    height: 100%;
   }
 
   #score {
@@ -63,6 +70,10 @@
     color: red;
     text-shadow: 2px 2px 10px gold;
     animation: blink 1s infinite;
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
   }
 
   @keyframes blink {
@@ -70,28 +81,54 @@
     51%, 100% { opacity: 0; }
   }
 
+  /* === Controls Area === */
   #controls {
-    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    height: 15vh;
+    min-height: 80px;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 10px;
   }
 
-  select {
-    background: linear-gradient(45deg, gold, orange, red);
+  /* === Stylish Dropdown === */
+  #skinSelect {
+    appearance: none;
+    background: linear-gradient(45deg, #ff9800, #ff5722, #f44336);
     border: 3px solid magenta;
     color: white;
-    font-size: 1em;
-    padding: 10px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px yellow;
+    font-size: 1.1em;
+    padding: 12px 40px 12px 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px yellow;
     cursor: pointer;
+    font-weight: bold;
+    position: relative;
+    transition: all 0.3s ease-in-out;
   }
 
-  /* The flap button */
+  #skinSelect:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 25px gold, 0 0 50px orange;
+  }
+
+  #skinSelect:focus {
+    outline: none;
+    box-shadow: 0 0 25px magenta, 0 0 50px cyan;
+  }
+
+  /* Add a custom dropdown arrow */
+  #skinSelect::after {
+    content: "▼";
+    position: absolute;
+    right: 15px;
+    color: white;
+  }
+
+  /* O Button */
   #flapButton {
-    display: none;
-    position: fixed;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%);
     background: linear-gradient(45deg, #ff5722, #ff9800);
     color: white;
     border: 3px solid gold;
@@ -102,20 +139,19 @@
     font-weight: bold;
     box-shadow: 0 0 15px #ffeb3b;
     cursor: pointer;
-    z-index: 1000;
+    transition: transform 0.2s;
   }
 
   #flapButton:active {
-    transform: translateX(-50%) scale(0.9);
+    transform: scale(0.9);
   }
 
   #footer {
     color: white;
-    font-size: 1.2em;
+    font-size: 1em;
     text-shadow: 1px 1px 5px magenta;
     animation: pulse 1s infinite alternate;
-    margin-top: 20px;
-    padding-bottom: 60px; /* prevent overlap with flap button */
+    padding: 10px 0;
   }
 
   @keyframes pulse {
@@ -123,34 +159,44 @@
     to { transform: scale(1.1); }
   }
 
-  /* Show and fix the flap button for mobile */
-  @media (max-width: 768px) {
+  /* Mobile layout */
+  @media (max-width: 600px) {
+    #controls {
+      flex-direction: row;
+      gap: 15px;
+    }
     #flapButton {
-      display: inline-block;
+      width: 60px;
+      height: 60px;
+      font-size: 1.5em;
+    }
+    #skinSelect {
+      font-size: 1em;
+      padding: 10px 30px 10px 15px;
     }
   }
 </style>
 </head>
 <body>
   <h1>🦅 FLAPPY MODI 🕉️</h1>
+
+  <!-- Game area -->
   <div id="gameContainer">
     <div id="score">Score: 0</div>
     <canvas id="gameCanvas" width="400" height="600"></canvas>
+    <div id="startText">TAP, CLICK, OR PRESS SPACE / O TO START 🇮🇳</div>
   </div>
-  <div id="startText">CLICK, TAP, PRESS SPACE, OR HIT "O" TO START 🇮🇳</div>
 
+  <!-- Controls bar -->
   <div id="controls">
-    <label for="skinSelect" style="color:white; text-shadow:1px 1px 5px black;">🪷 Choose Modi Skin:</label>
+    <button id="flapButton">O</button>
     <select id="skinSelect">
-      <option value="0">Classic Modi</option>
-      <option value="1">Election Mode</option>
-      <option value="2">Spiritual Modi</option>
-      <option value="3">Patriotic Modi</option>
+      <option value="0">OG Modi</option>
+      <option value="1">RN</option>
+      <option value="2">Shreelekha</option>
+      <option value="3">Anuj</option>
     </select>
   </div>
-
-  <!-- The always visible "O" button for mobile -->
-  <button id="flapButton">O</button>
 
   <div id="footer">🚀 Developed with 100% Pure Cringe by ChatGPT 😎</div>
 
@@ -160,24 +206,23 @@
     const scoreDisplay = document.getElementById("score");
 
     const birdSkins = [
-      "https://cdnbbsr.s3waas.gov.in/s3kv02013b3a11c006ef10c7a42ff6a61d/uploads/bfi_thumb/2025060327-r6rcu4tcow2792mxfyhpiqsdvhwx3404m54ulstj68.jpg",
-      "https://cdnbbsr.s3waas.gov.in/s3kv02013b3a11c006ef10c7a42ff6a61d/uploads/bfi_thumb/2024111148-e1731362737713-qwx4nhtuky0i39z196vfw50rfg38jumphujxu7akqg.jpg",
-      "https://cdnbbsr.s3waas.gov.in/s3kv02013b3a11c006ef10c7a42ff6a61d/uploads/bfi_thumb/2025010794-qzna93shqidolax0h8t6k8jrq043flyqiykdecc4nq.jpg",
-      "https://cdnbbsr.s3waas.gov.in/s3kv02013b3a11c006ef10c7a42ff6a61d/uploads/bfi_thumb/2024111430-qx1c1ll9iusns9e4h1118too8d7vcf61hd0bzydat2.jpg"
+      "https://cdnbbsr.s3waas.gov.in/s3kv02013b3a11c006ef10c7a42ff6a61d/uploads/bfi_thumb/2025060327-r6rcu4tcow2792mxfyhpiqsdvhwx3404m54ulstj68.jpg", // OG Modi
+      "https://cdnbbsr.s3waas.gov.in/s3kv02013b3a11c006ef10c7a42ff6a61d/uploads/bfi_thumb/2024111148-e1731362737713-qwx4nhtuky0i39z196vfw50rfg38jumphujxu7akqg.jpg", // RN
+      "https://cdnbbsr.s3waas.gov.in/s3kv02013b3a11c006ef10c7a42ff6a61d/uploads/bfi_thumb/2025010794-qzna93shqidolax0h8t6k8jrq043flyqiykdecc4nq.jpg", // Shreelekha
+      "https://cdnbbsr.s3waas.gov.in/s3kv02013b3a11c006ef10c7a42ff6a61d/uploads/bfi_thumb/2024111430-qx1c1ll9iusns9e4h1118too8d7vcf61hd0bzydat2.jpg"  // Anuj
     ];
 
     let currentSkinIndex = 0;
     const modiImg = new Image();
     modiImg.src = birdSkins[currentSkinIndex];
 
-    // Skin Selector
-    const skinSelect = document.getElementById("skinSelect");
-    skinSelect.addEventListener("change", (e) => {
+    // Change skin
+    document.getElementById("skinSelect").addEventListener("change", (e) => {
       currentSkinIndex = parseInt(e.target.value);
       modiImg.src = birdSkins[currentSkinIndex];
     });
 
-    // Game Variables
+    // Game variables
     let birdY = canvas.height / 2;
     let birdX = 80;
     let velocity = 0;
@@ -216,14 +261,12 @@
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       frame++;
 
-      // Pipe creation
       if (frame % 90 === 0) {
         let top = Math.random() * 200 + 50;
         let gap = 150;
         pipes.push({ x: canvas.width, width: 60, top: top, bottom: top + gap });
       }
 
-      // Draw pipes & check collision
       for (let i = 0; i < pipes.length; i++) {
         let p = pipes[i];
         p.x -= 2;
@@ -240,7 +283,6 @@
           return;
         }
 
-        // Score logic
         if (p.x + p.width === birdX) score++;
       }
 
@@ -249,7 +291,6 @@
       velocity += gravity;
       birdY += velocity;
 
-      // Ground/ceiling collision
       if (birdY + 40 > canvas.height || birdY < 0) {
         gameOver = true;
         alert("💥 MODI FELL FROM POWER! 💥\nYour Score: " + score);
