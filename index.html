@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLAPPY MODI 🕉️🇮🇳</title>
+<style>
+  body {
+    margin: 0;
+    overflow: hidden;
+    background: linear-gradient(45deg, orange, white, green);
+    background-size: 600% 600%;
+    animation: cringeBg 3s infinite alternate;
+    font-family: "Comic Sans MS", cursive;
+    text-align: center;
+  }
+
+  @keyframes cringeBg {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 100% 50%; }
+  }
+
+  h1 {
+    font-size: 3em;
+    color: #ff00ff;
+    text-shadow: 2px 2px 10px yellow, 0 0 20px cyan;
+    animation: wiggle 0.5s infinite alternate;
+    margin: 10px 0;
+  }
+
+  @keyframes wiggle {
+    from { transform: rotate(-3deg); }
+    to { transform: rotate(3deg); }
+  }
+
+  #gameContainer {
+    position: relative;
+    width: 90vw;
+    max-width: 450px;
+    margin: 0 auto;
+  }
+
+  #gameCanvas {
+    background: skyblue;
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 10px ridge gold;
+    box-shadow: 0 0 50px hotpink;
+  }
+
+  #score {
+    font-size: 2em;
+    color: white;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    text-shadow: 2px 2px 5px black;
+  }
+
+  #startText {
+    font-size: 1.5em;
+    color: red;
+    text-shadow: 2px 2px 10px gold;
+    animation: blink 1s infinite;
+  }
+
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  #controls {
+    margin-top: 10px;
+  }
+
+  select {
+    background: linear-gradient(45deg, gold, orange, red);
+    border: 3px solid magenta;
+    color: white;
+    font-size: 1em;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px yellow;
+    cursor: pointer;
+  }
+
+  /* The flap button */
+  #flapButton {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(45deg, #ff5722, #ff9800);
+    color: white;
+    border: 3px solid gold;
+    border-radius: 50%;
+    width: 70px;
+    height: 70px;
+    font-size: 2em;
+    font-weight: bold;
+    box-shadow: 0 0 15px #ffeb3b;
+    cursor: pointer;
+    z-index: 1000;
+  }
+
+  #flapButton:active {
+    transform: translateX(-50%) scale(0.9);
+  }
+
+  #footer {
+    color: white;
+    font-size: 1.2em;
+    text-shadow: 1px 1px 5px magenta;
+    animation: pulse 1s infinite alternate;
+    margin-top: 20px;
+    padding-bottom: 60px; /* prevent overlap with flap button */
+  }
+
+  @keyframes pulse {
+    from { transform: scale(1); }
+    to { transform: scale(1.1); }
+  }
+
+  /* Show and fix the flap button for mobile */
+  @media (max-width: 768px) {
+    #flapButton {
+      display: inline-block;
+    }
+  }
+</style>
+</head>
+<body>
+  <h1>🦅 FLAPPY MODI 🕉️</h1>
+  <div id="gameContainer">
+    <div id="score">Score: 0</div>
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+  </div>
+  <div id="startText">CLICK, TAP, PRESS SPACE, OR HIT "O" TO START 🇮🇳</div>
+
+  <div id="controls">
+    <label for="skinSelect" style="color:white; text-shadow:1px 1px 5px black;">🪷 Choose Modi Skin:</label>
+    <select id="skinSelect">
+      <option value="0">Classic Modi</option>
+      <option value="1">Election Mode</option>
+      <option value="2">Spiritual Modi</option>
+      <option value="3">Patriotic Modi</option>
+    </select>
+  </div>
+
+  <!-- The always visible "O" button for mobile -->
+  <button id="flapButton">O</button>
+
+  <div id="footer">🚀 Developed with 100% Pure Cringe by ChatGPT 😎</div>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const scoreDisplay = document.getElementById("score");
+
+    const birdSkins = [
+      "https://cdnbbsr.s3waas.gov.in/s3kv02013b3a11c006ef10c7a42ff6a61d/uploads/bfi_thumb/2025060327-r6rcu4tcow2792mxfyhpiqsdvhwx3404m54ulstj68.jpg",
+      "https://cdnbbsr.s3waas.gov.in/s3kv02013b3a11c006ef10c7a42ff6a61d/uploads/bfi_thumb/2024111148-e1731362737713-qwx4nhtuky0i39z196vfw50rfg38jumphujxu7akqg.jpg",
+      "https://cdnbbsr.s3waas.gov.in/s3kv02013b3a11c006ef10c7a42ff6a61d/uploads/bfi_thumb/2025010794-qzna93shqidolax0h8t6k8jrq043flyqiykdecc4nq.jpg",
+      "https://cdnbbsr.s3waas.gov.in/s3kv02013b3a11c006ef10c7a42ff6a61d/uploads/bfi_thumb/2024111430-qx1c1ll9iusns9e4h1118too8d7vcf61hd0bzydat2.jpg"
+    ];
+
+    let currentSkinIndex = 0;
+    const modiImg = new Image();
+    modiImg.src = birdSkins[currentSkinIndex];
+
+    // Skin Selector
+    const skinSelect = document.getElementById("skinSelect");
+    skinSelect.addEventListener("change", (e) => {
+      currentSkinIndex = parseInt(e.target.value);
+      modiImg.src = birdSkins[currentSkinIndex];
+    });
+
+    // Game Variables
+    let birdY = canvas.height / 2;
+    let birdX = 80;
+    let velocity = 0;
+    let gravity = 0.4;
+    let jump = -8;
+    let pipes = [];
+    let frame = 0;
+    let score = 0;
+    let gameOver = false;
+    let started = false;
+
+    function resetGame() {
+      birdY = canvas.height / 2;
+      velocity = 0;
+      pipes = [];
+      frame = 0;
+      score = 0;
+      gameOver = false;
+      started = false;
+      document.getElementById("startText").style.display = "block";
+      scoreDisplay.textContent = "Score: 0";
+    }
+
+    function drawModiBird() {
+      ctx.drawImage(modiImg, birdX, birdY, 60, 60);
+    }
+
+    function drawPipe(pipe) {
+      ctx.fillStyle = "green";
+      ctx.fillRect(pipe.x, 0, pipe.width, pipe.top);
+      ctx.fillRect(pipe.x, pipe.bottom, pipe.width, canvas.height - pipe.bottom);
+    }
+
+    function updateGame() {
+      if (!started || gameOver) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      frame++;
+
+      // Pipe creation
+      if (frame % 90 === 0) {
+        let top = Math.random() * 200 + 50;
+        let gap = 150;
+        pipes.push({ x: canvas.width, width: 60, top: top, bottom: top + gap });
+      }
+
+      // Draw pipes & check collision
+      for (let i = 0; i < pipes.length; i++) {
+        let p = pipes[i];
+        p.x -= 2;
+        drawPipe(p);
+
+        if (
+          birdX + 40 > p.x &&
+          birdX < p.x + p.width &&
+          (birdY < p.top || birdY + 40 > p.bottom)
+        ) {
+          gameOver = true;
+          alert("💀 MODI CRASHED INTO CORRUPTION! 💀\nYour Score: " + score);
+          resetGame();
+          return;
+        }
+
+        // Score logic
+        if (p.x + p.width === birdX) score++;
+      }
+
+      pipes = pipes.filter(p => p.x + p.width > 0);
+
+      velocity += gravity;
+      birdY += velocity;
+
+      // Ground/ceiling collision
+      if (birdY + 40 > canvas.height || birdY < 0) {
+        gameOver = true;
+        alert("💥 MODI FELL FROM POWER! 💥\nYour Score: " + score);
+        resetGame();
+        return;
+      }
+
+      drawModiBird();
+      scoreDisplay.textContent = "Score: " + score;
+      requestAnimationFrame(updateGame);
+    }
+
+    function flap() {
+      if (!started) {
+        started = true;
+        document.getElementById("startText").style.display = "none";
+        updateGame();
+      }
+      velocity = jump;
+    }
+
+    // Controls
+    canvas.addEventListener("click", flap);
+    document.getElementById("flapButton").addEventListener("click", flap);
+    document.addEventListener("keydown", (e) => {
+      if (e.code === "Space") flap();
+    });
+
+    resetGame();
+  </script>
+</body>
+</html>
